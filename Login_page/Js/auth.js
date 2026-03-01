@@ -1,4 +1,6 @@
-// ==================== IndexedDB Setup ====================
+// auth.js - Updated to talk to backend server at localhost:3000
+
+// ==================== IndexedDB Setup (optional - keep if you want client-side token storage) ====================
 const DB_NAME = "AppAuthDB";
 const DB_VERSION = 1;
 const STORE_NAME = "auth";
@@ -43,37 +45,23 @@ async function saveAuthData(token, user = {}) {
   });
 }
 
-async function getAuthData() {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, "readonly");
-    const store = tx.objectStore(STORE_NAME);
-    const request = store.get("current");
-
-    request.onsuccess = () => resolve(request.result || null);
-    request.onerror = () => reject(request.error);
-  });
-}
-
-async function clearAuthData() {
-  const db = await openDB();
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE_NAME, "readwrite");
-    const store = tx.objectStore(STORE_NAME);
-    const request = store.delete("current");
-
-    request.onsuccess = () => resolve();
-    request.onerror = () => reject(request.error);
-  });
-}
-
 // ==================== Login Form Logic ====================
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const toggle = document.getElementById("togglePassword");
   const passwordInput = document.getElementById("password");
   const submitBtn = document.getElementById("submitBtn");
-  const errorEl = document.getElementById("error-message");
+  const errorEl = document.getElementById("error-message") || document.createElement("div");
+
+  // Create error element if it doesn't exist in HTML
+  if (!document.getElementById("error-message")) {
+    errorEl.id = "error-message";
+    errorEl.style.color = "#dc2626";
+    errorEl.style.fontSize = "0.9rem";
+    errorEl.style.marginTop = "8px";
+    errorEl.style.textAlign = "center";
+    form.appendChild(errorEl);
+  }
 
   if (!form || !toggle || !passwordInput || !submitBtn) {
     console.error("Login form elements missing");
@@ -88,7 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
     toggle.classList.toggle("fa-eye-slash");
   });
 
-  // Form submit
+  // Form submission - send to backend
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
@@ -106,24 +94,32 @@ document.addEventListener("DOMContentLoaded", () => {
     submitBtn.textContent = "Signing in...";
 
     try {
-      const response = await fetch("/login", {
+      const response = await fetch("http://localhost:3000/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password })
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
 
       if (response.ok && data.success) {
-        await saveAuthData(data.token || "demo-token", data.user || { username });
-        window.location.href = "/dashboard.html";
+        // Optional: store token/user in IndexedDB (if your backend returns a token later)
+        if (data.token) {
+          await saveAuthData(data.token, data.user || { username });
+        }
+
+        // Success - redirect or show dashboard
+        alert("Login successful!"); // Replace with real redirect later
+        window.location.href = "/dashboard.html"; // or your dashboard page
       } else {
-        errorEl.textContent = data.message || "Login failed – check your credentials";
+        errorEl.textContent = data.message || "Invalid username or password";
         errorEl.style.display = "block";
       }
     } catch (err) {
-      console.error(err);
-      errorEl.textContent = "Cannot connect to server. Please try again.";
+      console.error("Login error:", err);
+      errorEl.textContent = "Cannot connect to server. Is the backend running?";
       errorEl.style.display = "block";
     } finally {
       submitBtn.disabled = false;
