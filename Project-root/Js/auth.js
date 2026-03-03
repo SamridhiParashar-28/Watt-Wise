@@ -1,4 +1,4 @@
-// auth.js - Login page JavaScript (updated for backend connection)
+// auth.js - Login page JavaScript (corrected backend port + minor improvements)
 
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
@@ -34,25 +34,26 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
 
       const username = document.getElementById("username")?.value?.trim();
-      const password = passwordInput?.value;
+      const password = passwordInput?.value?.trim();
 
       if (!username || !password) {
-        errorEl.textContent = "PLEASE ENTER BOTH USERNAME AND PASSWORD";
+        errorEl.textContent = "Please enter both username/email and password";
         errorEl.style.display = "block";
         return;
       }
 
       errorEl.style.display = "none";
       submitBtn.disabled = true;
-      submitBtn.textContent = "SIGNING IN...";
+      submitBtn.textContent = "Signing in...";
 
       try {
-        const response = await fetch("http://localhost:3000/login", {
+        const response = await fetch("http://localhost:5000/login", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ username, password }),
+          credentials: "omit",           // ← useful if you later use cookies/sessions
         });
 
         let data;
@@ -63,22 +64,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (response.ok && data.success) {
-          // Optional: store in IndexedDB if you want to keep user data client-side
-          // await saveAuthData("demo-token", data.user || { username });
+          // You can store token/user info here
+          localStorage.setItem("isLoggedIn", "true");
+          localStorage.setItem("username", username);
 
           alert("LOGIN SUCCESSFUL");
-          window.location.href = "dashboard.html"; // or your dashboard page
+          window.location.href = "dashboard/dashboard.html"; // corrected path
         } else {
-          errorEl.textContent = data.message || "INVALID USERNAME OR PASSWORD";
+          errorEl.textContent = data.message || "Invalid username or password";
           errorEl.style.display = "block";
         }
       } catch (err) {
         console.error("Login error:", err);
-        errorEl.textContent = "CANNOT CONNECT TO SERVER – IS BACKEND RUNNING?";
+        errorEl.textContent = "Cannot connect to server – is the backend running?";
         errorEl.style.display = "block";
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "SIGN IN";
+        submitBtn.textContent = "Sign in";
       }
     });
   }
