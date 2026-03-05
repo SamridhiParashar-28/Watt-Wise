@@ -13,6 +13,7 @@ app.use(cors({
 }));
 
 app.use(express.json());          // ← MUST HAVE – parses JSON request bodies
+app.use(express.static('.'));     // ← Serve static files from current directory
 
 // Optional: log every incoming request (helps debugging)
 app.use((req, res, next) => {
@@ -24,7 +25,7 @@ app.use((req, res, next) => {
 // ── Routes ──────────────────────────────────────────────────
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Backend is running on port 5000' });
+  res.sendFile(__dirname + '/index.html');
 });
 
 // REGISTER endpoint
