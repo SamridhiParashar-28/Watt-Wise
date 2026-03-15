@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>REGISTER NEW USER</title>
+  <title>Register – Energy Monitor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -12,7 +12,7 @@
   <div class="login-card">
     <div class="header">
       <h1>NEW ACCOUNT</h1>
-      <p>ENTER YOUR DETAILS TO REGISTER</p>
+      <p>CREATE YOUR ACCOUNT</p>
     </div>
 
     <form class="form-body" id="registerForm">
@@ -21,7 +21,7 @@
         <input 
           type="text" 
           id="username" 
-          placeholder="ENTER USERNAME" 
+          placeholder="choose username" 
           required 
           autocomplete="username"
           minlength="3"
@@ -53,8 +53,7 @@
         >
       </div>
 
-      <!-- Error / success message -->
-      <div id="message" class="error" style="display:none; text-align:center; margin:16px 0;"></div>
+      <div id="message" style="display:none; text-align:center; margin:16px 0; font-weight:bold;"></div>
 
       <button type="submit" id="submitBtn">REGISTER</button>
     </form>
@@ -64,6 +63,6 @@
     </div>
   </div>
 
-  <script src="Js/register.js"></script>
+  <script src="js/register.js"></script>
 </body>
 </html>
