@@ -57,7 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.textContent = "Registering...";
 
       try {
-        const response = await fetch("http://localhost:5000/register", {
+        const response = await fetch("https://super-duper-potato-wrqr74gvwqg6hv59g-5000.app.github.dev/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ username, password: passValue }),
