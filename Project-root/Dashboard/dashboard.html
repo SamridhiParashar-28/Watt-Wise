@@ -3,52 +3,84 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Energy Dashboard – Campus / Home</title>
+  <title>WattWise – Energy Dashboard</title>
 
-  <!-- Reuse global styles + add dashboard-specific -->
-  <link rel="stylesheet" href="../css/styles.css" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+
+  <!-- Global matrix theme + dashboard specific styles -->
+  <link rel="stylesheet" href="../public/css/styles.css" />
   <link rel="stylesheet" href="css/dashboard.css" />
 
-  <!-- Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+  <!-- Chart.js CDN (we will use it soon for consumption graph) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
   <div class="app-container">
 
-    <!-- Sidebar -->
+    <!-- Sidebar Navigation -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <h2>Energy Monitor</h2>
-        <p class="subtitle">Campus / Smart Home</p>
+        <h2>WATTWISE</h2>
+        <p class="subtitle">Energy Monitoring System</p>
       </div>
 
       <nav class="sidebar-nav">
         <a href="#" class="nav-link active"><i class="fas fa-gauge-high"></i> Dashboard</a>
         <a href="#" class="nav-link"><i class="fas fa-bolt"></i> Live Usage</a>
-        <a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Forecast</a>
-        <a href="#" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Billing</a>
+        <a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Consumption Trend</a>
+        <a href="#" class="nav-link"><i class="fas fa-file-invoice-dollar"></i> Estimated Bill</a>
         <a href="#" class="nav-link"><i class="fas fa-exclamation-triangle"></i> Anomalies</a>
-        <a href="#" class="nav-link"><i class="fas fa-building"></i> Block-wise View</a>
-        <a href="#" class="nav-link"><i class="fas fa-upload"></i> Upload Data</a>
-        <a href="../index.html" class="nav-link logout"><i class="fas fa-right-from-bracket"></i> Sign Out</a>
+        <a href="#" class="nav-link"><i class="fas fa-building"></i> Block / Floor View</a>
+        <a href="upload.html" class="nav-link"><i class="fas fa-upload"></i> Upload Meter Data</a>
+        <a href="#" id="logoutBtn" class="nav-link logout"><i class="fas fa-right-from-bracket"></i> Sign Out</a>
       </nav>
     </aside>
 
-    <!-- Main content area -->
+    <!-- Main Content Area -->
     <main class="main-content">
 
       <header class="page-header">
         <div class="welcome">
           <h1>Dashboard</h1>
-          <p>Welcome back, <span id="current-user">Guest</span></p>
+          <p>Welcome back, <span id="current-user">—</span></p>
         </div>
         <div class="last-update">
           Last updated: <span id="last-update">—</span>
         </div>
       </header>
 
-      <!-- We'll add cards, controls, tables in next pieces -->
+      <!-- Quick Stats Cards (will be filled by JS) -->
+      <section class="stats-grid">
+        <div class="card">
+          <h3>Today's Usage</h3>
+          <p class="value" id="today-usage">— kWh</p>
+          <span class="change" id="today-change">—</span>
+        </div>
+        <div class="card">
+          <h3>This Month</h3>
+          <p class="value" id="month-usage">— kWh</p>
+          <span class="change" id="month-change">—</span>
+        </div>
+        <div class="card">
+          <h3>Peak Hour</h3>
+          <p class="value" id="peak-hour">—</p>
+          <span class="small-text">Highest load</span>
+        </div>
+        <div class="card alert-card" id="anomaly-alert" style="display:none;">
+          <h3><i class="fas fa-exclamation-triangle"></i> Alert</h3>
+          <p>Unusually high usage detected</p>
+        </div>
+      </section>
+
+      <!-- Placeholder for chart (we'll connect Chart.js here soon) -->
+      <section class="chart-section">
+        <h2>Daily Consumption Trend</h2>
+        <div class="chart-container">
+          <canvas id="consumptionChart"></canvas>
+        </div>
+      </section>
 
     </main>
   </div>

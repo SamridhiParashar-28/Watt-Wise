@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sign In</title>
+  <title>Sign In – WattWise</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
@@ -17,18 +17,18 @@
 
     <form class="form-body" id="loginForm">
       <div class="input-group">
-        <label for="username">Email or username</label>
+        <label for="username">USERNAME</label>
         <input 
           type="text" 
           id="username" 
-          placeholder="name@example.com" 
+          placeholder="your username" 
           required 
           autocomplete="username"
         >
       </div>
 
       <div class="input-group">
-        <label for="password">Password</label>
+        <label for="password">PASSWORD</label>
         <input 
           type="password" 
           id="password" 
@@ -46,8 +46,7 @@
         <a href="#" class="forgot">Forgot password?</a>
       </div>
 
-      <!-- Optional: place for error messages -->
-      <div id="error-message" class="error" style="display:none; color:#dc2626; font-size:0.9rem; margin-top:8px;"></div>
+      <div id="error-message" style="display:none; color:#ff3366; font-size:0.95rem; text-align:center; margin:12px 0;"></div>
 
       <button type="submit" id="submitBtn">Sign in</button>
     </form>
@@ -57,6 +56,6 @@
     </div>
   </div>
 
-  <script src="Js/auth.js"></script>
+  <script src="js/auth.js"></script>
 </body>
 </html>

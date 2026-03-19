@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const submitBtn = document.getElementById("submitBtn");
   const messageEl = document.getElementById("message");
 
+  // Password visibility toggle
   if (toggle && password) {
     toggle.addEventListener("click", () => {
       const type = password.type === "password" ? "text" : "password";
@@ -26,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
       messageEl.style.display = "none";
 
       if (!username || !passValue || !confirmValue) {
-        messageEl.textContent = "All fields required";
+        messageEl.textContent = "All fields are required";
         messageEl.style.color = "#ef4444";
         messageEl.style.display = "block";
         return;
@@ -57,27 +58,29 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.textContent = "Registering...";
 
       try {
-        const response = await fetch("https://super-duper-potato-wrqr74gvwqg6hv59g-5000.app.github.dev/register", {
+        const response = await fetch("http://localhost:5000/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password: passValue }),
-          credentials: "include"
+          body: JSON.stringify({ username, password: passValue })
         });
 
         const data = await response.json();
 
         if (response.ok && data.success) {
-          messageEl.textContent = "Account created! Redirecting...";
+          messageEl.textContent = "Account created! Redirecting to login...";
           messageEl.style.color = "#22c55e";
           messageEl.style.display = "block";
-          setTimeout(() => window.location.href = "index.html", 1800);
+          
+          setTimeout(() => {
+            window.location.href = "index.html";
+          }, 1800);
         } else {
           messageEl.textContent = data.message || "Registration failed";
           messageEl.style.color = "#ef4444";
           messageEl.style.display = "block";
         }
       } catch (err) {
-        messageEl.textContent = "Cannot connect to server";
+        messageEl.textContent = "Cannot connect to server. Is backend running?";
         messageEl.style.color = "#ef4444";
         messageEl.style.display = "block";
       } finally {

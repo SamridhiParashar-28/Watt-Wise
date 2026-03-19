@@ -1,22 +1,9 @@
-// auth.js - Login page JavaScript (corrected backend port + minor improvements)
-
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("loginForm");
   const toggle = document.getElementById("togglePassword");
   const passwordInput = document.getElementById("password");
   const submitBtn = document.getElementById("submitBtn");
-
-  // Create or get error message element
-  let errorEl = document.getElementById("error-message");
-  if (!errorEl) {
-    errorEl = document.createElement("div");
-    errorEl.id = "error-message";
-    errorEl.style.color = "#ff3366";
-    errorEl.style.fontSize = "0.95rem";
-    errorEl.style.marginTop = "12px";
-    errorEl.style.textAlign = "center";
-    form.appendChild(errorEl);
-  }
+  const errorEl = document.getElementById("error-message");
 
   // Password visibility toggle
   if (toggle && passwordInput) {
@@ -28,7 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Form submission
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -37,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const password = passwordInput?.value?.trim();
 
       if (!username || !password) {
-        errorEl.textContent = "Please enter both username/email and password";
+        errorEl.textContent = "Please enter username and password";
         errorEl.style.display = "block";
         return;
       }
@@ -47,36 +33,35 @@ document.addEventListener("DOMContentLoaded", () => {
       submitBtn.textContent = "Signing in...";
 
       try {
-        const response = await fetch("https://super-duper-potato-wrqr74gvwqg6hv59g-5000.app.github.dev/login", {
+        const response = await fetch("http://localhost:5000/login", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ username, password }),
-          credentials: "omit",           // ← useful if you later use cookies/sessions
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
         });
 
-        let data;
-        try {
-          data = await response.json();
-        } catch {
-          throw new Error("Invalid response from server");
-        }
+        const data = await response.json();
 
         if (response.ok && data.success) {
-          // You can store token/user info here
           localStorage.setItem("isLoggedIn", "true");
           localStorage.setItem("username", username);
+          
+          // Optional: you can store a token later when you implement JWT
+          // localStorage.setItem("token", data.token);
 
-          alert("LOGIN SUCCESSFUL");
-          window.location.href = "Dashboard/dashboard.html"; // corrected path (case-sensitive)
+          errorEl.style.color = "#22c55e";
+          errorEl.textContent = "Login successful! Redirecting...";
+          errorEl.style.display = "block";
+
+          setTimeout(() => {
+            window.location.href = "../Dashboard/dashboard.html";
+          }, 1200);
         } else {
           errorEl.textContent = data.message || "Invalid username or password";
           errorEl.style.display = "block";
         }
       } catch (err) {
         console.error("Login error:", err);
-        errorEl.textContent = "Cannot connect to server – is the backend running?";
+        errorEl.textContent = "Cannot connect to server. Is backend running?";
         errorEl.style.display = "block";
       } finally {
         submitBtn.disabled = false;
