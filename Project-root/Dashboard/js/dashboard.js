@@ -1,111 +1,131 @@
-// Dashboard/js/dashboard.js
-
 document.addEventListener("DOMContentLoaded", () => {
-  // ── Basic client-side auth check ──
-  const isLoggedIn  = localStorage.getItem("isLoggedIn") === "true";
-  const username    = localStorage.getItem("username") || "Guest";
 
+  // ── Auth guard ──────────────────────────────────────────
+  const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
   if (!isLoggedIn) {
-    alert("Please sign in first.");
-    window.location.href = "../public/index.html";
+    // Use replace() so the user can't press Back to get back here
+    window.location.replace("../public/index.html");
     return;
   }
 
-  // Show username in header
+  const username = localStorage.getItem("username") || "User";
+
+  // ── Populate header ─────────────────────────────────────
   const userEl = document.getElementById("current-user");
   if (userEl) userEl.textContent = username;
 
-  // Show fake/current timestamp
   const updateEl = document.getElementById("last-update");
   if (updateEl) {
-    const now = new Date();
-    updateEl.textContent = now.toLocaleString("en-IN", {
+    updateEl.textContent = new Date().toLocaleString("en-IN", {
       dateStyle: "medium",
       timeStyle: "short"
     });
   }
 
-  // ── Logout handler ──
+  // ── Logout ──────────────────────────────────────────────
   const logoutBtn = document.getElementById("logoutBtn");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", (e) => {
       e.preventDefault();
-      localStorage.removeItem("isLoggedIn");
-      localStorage.removeItem("username");
-      // localStorage.removeItem("token");  // if you add JWT later
-      window.location.href = "../public/index.html";
+      localStorage.clear();                               // wipe ALL session data
+      window.location.replace("../public/index.html");
     });
   }
 
-  // ── Placeholder: later fetch real data from backend ──
-  // For now we show dummy values so the dashboard doesn't look empty
+  // ── Sidebar active-link highlight ───────────────────────
+  document.querySelectorAll(".nav-link").forEach(link => {
+    link.addEventListener("click", function () {
+      document.querySelectorAll(".nav-link").forEach(l => l.classList.remove("active"));
+      this.classList.add("active");
+    });
+  });
 
-  // Dummy data (replace with real fetch later)
+  // ── Dummy data (replace with real fetch() later) ────────
   const dummyData = {
-    todayUsage: "14.8",
+    todayUsage:  "14.8",
     todayChange: "+12% from yesterday",
-    monthUsage: "287.4",
-    monthChange: "-3.1% from last month",
-    peakHour: "18:00 – 19:00 (3.2 kW)",
-    hasAnomaly: true
+    monthUsage:  "287.4",
+    monthChange: "−3.1% from last month",
+    peakHour:    "18:00 – 19:00 (3.2 kW)",
+    hasAnomaly:  true
   };
 
-  // Fill cards
-  document.getElementById("today-usage").textContent = dummyData.todayUsage + " kWh";
-  document.getElementById("today-change").textContent = dummyData.todayChange;
-  document.getElementById("month-usage").textContent = dummyData.monthUsage + " kWh";
-  document.getElementById("month-change").textContent = dummyData.monthChange;
-  document.getElementById("peak-hour").textContent = dummyData.peakHour;
+  setEl("today-usage",  dummyData.todayUsage  + " kWh");
+  setEl("today-change", dummyData.todayChange);
+  setEl("month-usage",  dummyData.monthUsage  + " kWh");
+  setEl("month-change", dummyData.monthChange);
+  setEl("peak-hour",    dummyData.peakHour);
 
-  // Show/hide anomaly alert
   const alertCard = document.getElementById("anomaly-alert");
-  if (dummyData.hasAnomaly && alertCard) {
-    alertCard.style.display = "block";
-  }
+  if (dummyData.hasAnomaly && alertCard) alertCard.style.display = "block";
 
-  // ── Simple Chart.js example (daily trend) ──
-  const ctx = document.getElementById("consumptionChart")?.getContext("2d");
-  if (ctx) {
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-          label: 'kWh per day',
-          data: [18.2, 21.5, 19.8, 24.1, 22.7, 17.3, 15.9],
-          borderColor: '#00ff41',
-          backgroundColor: 'rgba(0, 255, 65, 0.12)',
-          tension: 0.3,
-          fill: true,
-          pointBackgroundColor: '#00ff41',
-          pointBorderColor: '#000',
-          pointBorderWidth: 2
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { color: '#00cc33' },
-            grid: { color: 'rgba(0, 255, 65, 0.08)' }
-          },
-          x: {
-            ticks: { color: '#00cc33' },
-            grid: { display: false }
-          }
+  // ── Chart ───────────────────────────────────────────────
+  const canvas = document.getElementById("consumptionChart");
+  if (!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels:   ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      datasets: [{
+        label:           "kWh / day",
+        data:            [18.2, 21.5, 19.8, 24.1, 22.7, 17.3, 15.9],
+        borderColor:     "#00ff41",
+        backgroundColor: "rgba(0, 255, 65, 0.10)",
+        tension:         0.35,
+        fill:            true,
+        pointBackgroundColor: "#00ff41",
+        pointBorderColor:     "#000",
+        pointBorderWidth:     2,
+        pointRadius:          5,
+        pointHoverRadius:     7
+      }]
+    },
+    options: {
+      responsive:          true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks:  { color: "#00cc33" },
+          grid:   { color: "rgba(0, 255, 65, 0.08)" }
         },
-        plugins: {
-          legend: { labels: { color: '#00ff41' } }
+        x: {
+          ticks: { color: "#00cc33" },
+          grid:  { display: false }
+        }
+      },
+      plugins: {
+        legend: { labels: { color: "#00ff41" } },
+        tooltip: {
+          backgroundColor: "#001100",
+          borderColor:     "#00aa33",
+          borderWidth:     1,
+          titleColor:      "#00ff41",
+          bodyColor:       "#00cc33"
         }
       }
-    });
+    }
+  });
+
+  // ── Helper ──────────────────────────────────────────────
+  function setEl(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
   }
 
-  // ── Future improvements (you can start working on these next) ──
-  // 1. fetch('/api/usage/latest') → real numbers
-  // 2. fetch('/api/usage/history') → real chart data
-  // 3. Simple anomaly check: if today > 1.5 × 7-day avg → show alert
-  // 4. Connect real CSV parsed data from backend
+  // ── Future: replace dummyData with real fetch ────────────
+  // async function loadRealData() {
+  //   const token = localStorage.getItem("token");
+  //   const res   = await fetch("http://localhost:5000/api/usage/summary", {
+  //     headers: { "Authorization": "Bearer " + token }
+  //   });
+  //   const data  = await res.json();
+  //   setEl("today-usage", data.todayKwh + " kWh");
+  //   ...
+  // }
+  // loadRealData();
 });

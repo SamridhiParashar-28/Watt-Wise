@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
-<body>
+<!-- auth-page class centres the login card via CSS grid -->
+<body class="auth-page">
 
   <div class="login-card">
     <div class="header">
@@ -15,38 +16,45 @@
       <p>Sign in to continue to your account</p>
     </div>
 
-    <form class="form-body" id="loginForm">
+    <form class="form-body" id="loginForm" novalidate>
       <div class="input-group">
-        <label for="username">USERNAME</label>
-        <input 
-          type="text" 
-          id="username" 
-          placeholder="your username" 
-          required 
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          placeholder="your username"
+          required
           autocomplete="username"
-        >
+          spellcheck="false"
+          autocapitalize="none"
+        />
       </div>
 
       <div class="input-group">
-        <label for="password">PASSWORD</label>
-        <input 
-          type="password" 
-          id="password" 
-          placeholder="••••••••" 
-          required 
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          placeholder="••••••••"
+          required
           autocomplete="current-password"
-        >
-        <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
+        />
+        <i class="fa-solid fa-eye password-toggle" id="togglePassword" role="button" aria-label="Toggle password visibility"></i>
       </div>
 
       <div class="options">
         <label class="remember">
-          <input type="checkbox" id="remember"> Remember me
+          <input type="checkbox" id="remember" /> Remember me
         </label>
         <a href="#" class="forgot">Forgot password?</a>
       </div>
 
-      <div id="error-message" style="display:none; color:#ff3366; font-size:0.95rem; text-align:center; margin:12px 0;"></div>
+      <div
+        id="error-message"
+        role="alert"
+        aria-live="polite"
+        style="display:none; font-size:0.95rem; text-align:center; margin:4px 0;"
+      ></div>
 
       <button type="submit" id="submitBtn">Sign in</button>
     </form>

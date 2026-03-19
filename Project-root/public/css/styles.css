@@ -1,27 +1,35 @@
+/* ── CSS variables ───────────────────────────────────────── */
 :root {
-  --bg: #000000;
-  --card-bg: #001100;
-  --text: #00ff41;
-  --text-light: #00cc33;
-  --accent: #00ff41;
-  --border: #00aa33;
-  --glow: rgba(0, 255, 65, 0.35);
+  --bg:        #000000;
+  --card-bg:   #001100;
+  --text:      #00ff41;
+  --text-light:#00cc33;
+  --accent:    #00ff41;
+  --border:    #00aa33;
+  --glow:      rgba(0, 255, 65, 0.35);
 }
 
-* {
+/* ── Reset ───────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+/* ── Base body ───────────────────────────────────────────── */
+/*
+ * IMPORTANT: body must NOT use display:grid + place-items:center here
+ * because the dashboard layout (app-container) overrides that and it
+ * would cause the sidebar to collapse.
+ * The login/register pages add .login-page-body on <body> to centre themselves.
+ */
 body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Courier New', Courier, monospace;
   min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  padding: 20px;
   line-height: 1.4;
   background-image: repeating-linear-gradient(
     to bottom,
@@ -32,6 +40,14 @@ body {
   background-size: 100% 4px;
 }
 
+/* ── Login/register page centering (add this class to <body>) ── */
+body.auth-page {
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+/* ── Login card ──────────────────────────────────────────── */
 .login-card {
   width: 100%;
   max-width: 480px;
@@ -55,6 +71,7 @@ body {
   pointer-events: none;
 }
 
+/* ── Header ──────────────────────────────────────────────── */
 .header {
   margin-bottom: 48px;
   text-align: center;
@@ -71,41 +88,42 @@ body {
 }
 
 .header p {
-  font-size: 1.4rem;
+  font-size: 1.2rem;
   opacity: 0.85;
   letter-spacing: 1px;
 }
 
+/* ── Form ────────────────────────────────────────────────── */
 .form-body {
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 24px;
 }
 
-.input-group {
-  position: relative;
-}
+.input-group { position: relative; }
 
 label {
   display: block;
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 2px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   color: var(--text-light);
 }
 
-input {
+input[type="text"],
+input[type="password"],
+input[type="email"] {
   width: 100%;
-  padding: 14px 16px;
+  padding: 13px 15px;
   background: #000;
   border: 3px solid var(--border);
   color: var(--text);
   font-family: inherit;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   letter-spacing: 1px;
-  transition: all 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 input:focus {
@@ -118,30 +136,31 @@ input:focus {
 
 @keyframes blink-caret {
   from, to { caret-color: transparent; }
-  50% { caret-color: var(--accent); }
+  50%       { caret-color: var(--accent); }
 }
 
 .password-toggle {
   position: absolute;
-  right: 16px;
-  top: 50px;
+  right: 14px;
+  top: 46px;
   color: var(--text-light);
   cursor: pointer;
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
+/* ── Checkbox row ────────────────────────────────────────── */
 .options {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 1.1rem;
-  margin: 16px 0;
+  font-size: 1rem;
 }
 
 .remember {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  cursor: pointer;
 }
 
 .forgot {
@@ -155,36 +174,39 @@ input:focus {
   text-shadow: 0 0 10px var(--glow);
 }
 
-button {
+/* ── Submit button ───────────────────────────────────────── */
+button[type="submit"] {
   width: 100%;
-  padding: 18px;
+  padding: 16px;
   background: var(--accent);
   color: #000;
   border: none;
-  font-size: 1.4rem;
+  font-family: inherit;
+  font-size: 1.2rem;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 3px;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
   box-shadow: 0 0 25px var(--glow);
 }
 
-button:hover:not(:disabled) {
+button[type="submit"]:hover:not(:disabled) {
   background: #00cc33;
   box-shadow: 0 0 40px var(--glow);
   transform: scale(1.02);
 }
 
-button:disabled {
+button[type="submit"]:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
+/* ── Footer ──────────────────────────────────────────────── */
 .footer {
   text-align: center;
-  margin-top: 40px;
-  font-size: 1.1rem;
+  margin-top: 36px;
+  font-size: 1rem;
   color: var(--text-light);
 }
 
@@ -199,17 +221,18 @@ button:disabled {
   text-shadow: 0 0 10px var(--glow);
 }
 
-@media (max-width: 480px) {
-  .login-card {
-    padding: 32px 24px;
-    border-width: 3px;
-  }
-  .header h1 {
-    font-size: 2.8rem;
-  }
-}
+/* ── Success colour utility ──────────────────────────────── */
 .success {
   color: #00ff41 !important;
   font-weight: bold;
   text-shadow: 0 0 10px #00ff41;
+}
+
+/* ── Mobile ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .login-card {
+    padding: 32px 20px;
+    border-width: 3px;
+  }
+  .header h1 { font-size: 2.6rem; }
 }

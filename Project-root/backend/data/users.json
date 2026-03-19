@@ -1,0 +1,17 @@
+[
+  {
+    "username": "sam1",
+    "password": "$2b$12$fVcymsnp/3weK48cjVF3xOL0H6t3LhHhvlFqso9qhevy4khv5jGq2",
+    "createdAt": "2026-03-19T20:12:49.405Z"
+  },
+  {
+    "username": "Bhoomi0304",
+    "password": "$2b$12$ogpdpaGdI29FMmk1yd.lA.3FtdiCp9UPiWY84fP6sGHk3vQ.N012G",
+    "createdAt": "2026-03-19T20:15:48.078Z"
+  },
+  {
+    "username": "sam2",
+    "password": "$2b$12$0peZZaidqlJiXq77p4Urp.I/s10v/vxEI2Ot0q7ZI84kOHBu64uZm",
+    "createdAt": "2026-03-19T20:19:15.332Z"
+  }
+]

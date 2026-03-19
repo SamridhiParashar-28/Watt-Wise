@@ -1,72 +1,89 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const form = document.getElementById("loginForm");
-  const toggle = document.getElementById("togglePassword");
-  const passwordInput = document.getElementById("password");
-  const submitBtn = document.getElementById("submitBtn");
-  const errorEl = document.getElementById("error-message");
+  // If already logged in, skip straight to the dashboard
+  if (localStorage.getItem("isLoggedIn") === "true") {
+    window.location.replace("../Dashboard/dashboard.html");
+    return;
+  }
 
-  // Password visibility toggle
-  if (toggle && passwordInput) {
+  const form        = document.getElementById("loginForm");
+  const toggle      = document.getElementById("togglePassword");
+  const passInput   = document.getElementById("password");
+  const submitBtn   = document.getElementById("submitBtn");
+  const errorEl     = document.getElementById("error-message");
+
+  // ── Password visibility toggle ─────────────────────────
+  if (toggle && passInput) {
     toggle.addEventListener("click", () => {
-      const type = passwordInput.type === "password" ? "text" : "password";
-      passwordInput.type = type;
-      toggle.classList.toggle("fa-eye");
-      toggle.classList.toggle("fa-eye-slash");
+      const show = passInput.type === "password";
+      passInput.type = show ? "text" : "password";
+      toggle.classList.toggle("fa-eye",       !show);
+      toggle.classList.toggle("fa-eye-slash",  show);
     });
   }
 
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  // ── Form submit ────────────────────────────────────────
+  if (!form) return;
 
-      const username = document.getElementById("username")?.value?.trim();
-      const password = passwordInput?.value?.trim();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearMessage();
 
-      if (!username || !password) {
-        errorEl.textContent = "Please enter username and password";
-        errorEl.style.display = "block";
-        return;
+    const username = document.getElementById("username")?.value?.trim();
+    const password = passInput?.value?.trim();
+
+    if (!username || !password) {
+      return showError("Please enter your username and password.");
+    }
+
+    submitBtn.disabled    = true;
+    submitBtn.textContent = "Signing in…";
+
+    try {
+      const res  = await fetch("http://localhost:5000/login", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        // Clear any stale session data before writing new one
+        localStorage.clear();
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("username",   data.username);
+        localStorage.setItem("token",      data.token);    // save for future API calls
+
+        showSuccess("Login successful! Redirecting…");
+        setTimeout(() => {
+          window.location.replace("../Dashboard/dashboard.html");
+        }, 1000);
+      } else {
+        showError(data.message || "Invalid username or password.");
       }
+    } catch {
+      showError("Cannot connect to server. Is the backend running on port 5000?");
+    } finally {
+      submitBtn.disabled    = false;
+      submitBtn.textContent = "Sign in";
+    }
+  });
 
-      errorEl.style.display = "none";
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Signing in...";
+  // ── Helpers ────────────────────────────────────────────
+  function showError(msg) {
+    errorEl.style.color   = "var(--accent-danger, #ff3366)";
+    errorEl.textContent   = msg;
+    errorEl.style.display = "block";
+  }
 
-      try {
-        const response = await fetch("http://localhost:5000/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username, password })
-        });
+  function showSuccess(msg) {
+    errorEl.style.color   = "#00ff41";
+    errorEl.textContent   = msg;
+    errorEl.style.display = "block";
+  }
 
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          localStorage.setItem("isLoggedIn", "true");
-          localStorage.setItem("username", username);
-          
-          // Optional: you can store a token later when you implement JWT
-          // localStorage.setItem("token", data.token);
-
-          errorEl.style.color = "#22c55e";
-          errorEl.textContent = "Login successful! Redirecting...";
-          errorEl.style.display = "block";
-
-          setTimeout(() => {
-            window.location.href = "../Dashboard/dashboard.html";
-          }, 1200);
-        } else {
-          errorEl.textContent = data.message || "Invalid username or password";
-          errorEl.style.display = "block";
-        }
-      } catch (err) {
-        console.error("Login error:", err);
-        errorEl.textContent = "Cannot connect to server. Is backend running?";
-        errorEl.style.display = "block";
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "Sign in";
-      }
-    });
+  function clearMessage() {
+    errorEl.style.display = "none";
+    errorEl.textContent   = "";
   }
 });

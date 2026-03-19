@@ -1,108 +1,93 @@
-// public/js/register.js
-// Handles client-side registration form validation + sends data to backend
-
 document.addEventListener("DOMContentLoaded", () => {
-  const form          = document.getElementById("registerForm");
-  const toggle        = document.getElementById("togglePassword");
-  const password      = document.getElementById("password");
-  const confirmPass   = document.getElementById("confirmPassword");
-  const submitBtn     = document.getElementById("submitBtn");
-  const messageEl     = document.getElementById("message");
+  const form        = document.getElementById("registerForm");
+  const toggle      = document.getElementById("togglePassword");
+  const passInput   = document.getElementById("password");
+  const confirmPass = document.getElementById("confirmPassword");
+  const submitBtn   = document.getElementById("submitBtn");
+  const messageEl   = document.getElementById("message");
 
-  // ── Password visibility toggle ────────────────────────────────────────
-  if (toggle && password) {
+  // ── Password visibility toggle ─────────────────────────
+  if (toggle && passInput) {
     toggle.addEventListener("click", () => {
-      const isPassword = password.type === "password";
-      password.type = isPassword ? "text" : "password";
-      toggle.classList.toggle("fa-eye", !isPassword);
-      toggle.classList.toggle("fa-eye-slash", isPassword);
+      const show = passInput.type === "password";
+      passInput.type = show ? "text" : "password";
+      toggle.classList.toggle("fa-eye",       !show);
+      toggle.classList.toggle("fa-eye-slash",  show);
     });
   }
 
-  // ── Form submission handler ───────────────────────────────────────────
-  if (form) {
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
+  if (!form) return;
 
-      // Reset message
-      messageEl.style.display = "none";
-      messageEl.textContent = "";
+  // ── Form submit ────────────────────────────────────────
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    clearMessage();
 
-      // Get and trim values
-      const username      = document.getElementById("username")?.value?.trim();
-      const passValue     = password?.value?.trim();
-      const confirmValue  = confirmPass?.value?.trim();
+    // NOTE: Only trim username; do NOT trim password — spaces can be intentional
+    const username     = document.getElementById("username")?.value?.trim() ?? "";
+    const passValue    = passInput?.value ?? "";
+    const confirmValue = confirmPass?.value ?? "";
 
-      // ── Client-side validation ──────────────────────────────────────
-      if (!username || !passValue || !confirmValue) {
-        showMessage("All fields are required", "error");
-        return;
-      }
+    // ── Client-side validation ──────────────────────────
+    if (!username || !passValue || !confirmValue) {
+      return showMessage("All fields are required.", "error");
+    }
+    if (username.length < 3 || username.length > 50) {
+      return showMessage("Username must be between 3 and 50 characters.", "error");
+    }
+    if (passValue.length < 6) {
+      return showMessage("Password must be at least 6 characters.", "error");
+    }
+    if (passValue !== confirmValue) {
+      return showMessage("Passwords do not match.", "error");
+    }
 
-      if (username.length < 3 || username.length > 50) {
-        showMessage("Username must be between 3 and 50 characters", "error");
-        return;
-      }
+    submitBtn.disabled    = true;
+    submitBtn.textContent = "Creating account…";
 
-      if (passValue.length < 6) {
-        showMessage("Password must be at least 6 characters long", "error");
-        return;
-      }
+    try {
+      const res = await fetch("http://localhost:5000/register", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body:    JSON.stringify({ username, password: passValue })
+      });
 
-      if (passValue !== confirmValue) {
-        showMessage("Passwords do not match", "error");
-        return;
-      }
-
-      // Disable button & show loading state
-      submitBtn.disabled = true;
-      submitBtn.textContent = "Creating account...";
-
+      let data;
       try {
-        const response = await fetch("http://localhost:5000/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-          },
-          body: JSON.stringify({
-            username,
-            password: passValue
-          })
-        });
-
-        let data;
-        try {
-          data = await response.json();
-        } catch {
-          throw new Error("Invalid response from server");
-        }
-
-        if (response.ok && data.success) {
-          showMessage("Account created successfully! Redirecting to login...", "success");
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1600);
-        } else {
-          showMessage(data.message || "Registration failed. Please try again.", "error");
-        }
-      } catch (err) {
-        console.error("Registration error:", err);
-        showMessage(
-          "Cannot connect to the server.<br>Make sure backend is running on port 5000.",
-          "error"
-        );
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = "REGISTER";
+        data = await res.json();
+      } catch {
+        throw new Error("Invalid response from server.");
       }
-    });
+
+      if (res.ok && data.success) {
+        showMessage("Account created! Redirecting to login…", "success");
+        setTimeout(() => {
+          window.location.replace("index.html");
+        }, 1500);
+      } else {
+        showMessage(data.message || "Registration failed. Please try again.", "error");
+      }
+    } catch (err) {
+      console.error("Registration error:", err);
+      showMessage(
+        "Cannot connect to the server. Make sure the backend is running on port 5000.",
+        "error"
+      );
+    } finally {
+      submitBtn.disabled    = false;
+      submitBtn.textContent = "REGISTER";
+    }
+  });
+
+  // ── Helpers ────────────────────────────────────────────
+  function showMessage(text, type = "error") {
+    messageEl.textContent   = text;
+    messageEl.style.color   = type === "success" ? "#00ff41" : "#ff3366";
+    messageEl.style.display = "block";
   }
 
-  // ── Helper function to show messages ──────────────────────────────────
-  function showMessage(text, type = "error") {
-    messageEl.textContent = text;
-    messageEl.style.color = type === "success" ? "#22c55e" : "#ef4444";
-    messageEl.style.display = "block";
+  function clearMessage() {
+    messageEl.style.display = "none";
+    messageEl.textContent   = "";
   }
 });

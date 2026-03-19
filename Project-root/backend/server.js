@@ -5,140 +5,131 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const port = 5000;
+const PORT = process.env.PORT || 5000;
 
-// Where we store users (same folder as server.js)
-const USERS_FILE = path.join(__dirname, 'users.json');
+const USERS_FILE = path.join(__dirname, 'data', 'users.json');
 
-// Allow frontend Codespace origin
+function ensureUsersFile() {
+  const dir = path.dirname(USERS_FILE);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  if (!fs.existsSync(USERS_FILE)) fs.writeFileSync(USERS_FILE, '[]', 'utf8');
+}
+ensureUsersFile();
+
+const allowedOrigins = [
+  'http://localhost:5500',
+  'http://127.0.0.1:5500',
+  'https://super-duper-potato-wrqr74gvwqg6hv59g-5500.app.github.dev'
+];
+
 app.use(cors({
-  origin: 'https://super-duper-potato-wrqr74gvwqg6hv59g-5500.app.github.dev',
+  origin: (origin, cb) => {
+    if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+    cb(new Error('CORS blocked: ' + origin));
+  },
   credentials: true
 }));
-app.use(express.json());
 
-// Log requests (helps with debugging)
-app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-  if (Object.keys(req.body).length) console.log('Body:', req.body);
+app.use(express.json({ limit: '10kb' }));
+
+app.use((req, _res, next) => {
+  console.log('[' + new Date().toISOString() + '] ' + req.method + ' ' + req.url);
   next();
 });
 
-// ── Helper functions ─────────────────────────────────────
 function loadUsers() {
   try {
-    if (!fs.existsSync(USERS_FILE)) {
-      fs.writeFileSync(USERS_FILE, JSON.stringify([]), 'utf8');
-      return [];
-    }
     const data = fs.readFileSync(USERS_FILE, 'utf8');
     return JSON.parse(data);
   } catch (err) {
-    console.error('Error reading users.json:', err);
+    console.error('Error reading users file:', err.message);
     return [];
   }
 }
 
 function saveUsers(users) {
-  try {
-    fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
-  } catch (err) {
-    console.error('Error writing to users.json:', err);
-    throw err;
-  }
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), 'utf8');
 }
 
-// ── REGISTER endpoint ────────────────────────────────────
+function sanitise(str) {
+  return (str || '').trim().replace(/[\x00-\x1F\x7F]/g, '');
+}
+
 app.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = sanitise(req.body.username);
+    const password = sanitise(req.body.password);
 
     if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Username and password are required' });
+      return res.status(400).json({ success: false, message: 'Username and password are required.' });
     }
-
     if (username.length < 3 || username.length > 50) {
-      return res.status(400).json({ success: false, message: 'Username must be 3–50 characters' });
+      return res.status(400).json({ success: false, message: 'Username must be 3-50 characters.' });
     }
-
     if (password.length < 6) {
-      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters' });
+      return res.status(400).json({ success: false, message: 'Password must be at least 6 characters.' });
     }
 
     const users = loadUsers();
-
-    // Check if username already exists (case-insensitive)
     if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-      return res.status(409).json({ success: false, message: 'Username already taken' });
+      return res.status(409).json({ success: false, message: 'Username already taken.' });
     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create new user object
-    const newUser = {
-      username,
-      password: hashedPassword,
-      createdAt: new Date().toISOString()
-    };
-
-    users.push(newUser);
+    const hashedPassword = await bcrypt.hash(password, 12);
+    users.push({ username, password: hashedPassword, createdAt: new Date().toISOString() });
     saveUsers(users);
 
-    console.log(`New user registered: ${username}`);
-
-    res.status(201).json({
-      success: true,
-      message: 'Account created successfully',
-      username
-    });
+    console.log('Registered:', username);
+    return res.status(201).json({ success: true, message: 'Account created successfully.', username });
   } catch (err) {
     console.error('REGISTER ERROR:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
   }
 });
 
-// ── LOGIN endpoint ───────────────────────────────────────
 app.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const username = sanitise(req.body.username);
+    const password = sanitise(req.body.password);
 
     if (!username || !password) {
-      return res.status(400).json({ success: false, message: 'Username and password are required' });
+      return res.status(400).json({ success: false, message: 'Username and password are required.' });
     }
 
     const users = loadUsers();
     const user = users.find(u => u.username.toLowerCase() === username.toLowerCase());
 
-    if (!user) {
-      return res.status(401).json({ success: false, message: 'Invalid username or password' });
+    const fakeHash = '$2a$12$invalidhashfortimingprotection000000000000000000000000';
+    const isCorrect = user
+      ? await bcrypt.compare(password, user.password)
+      : await bcrypt.compare(password, fakeHash).then(() => false);
+
+    if (!user || !isCorrect) {
+      return res.status(401).json({ success: false, message: 'Invalid username or password.' });
     }
 
-    const passwordCorrect = await bcrypt.compare(password, user.password);
-
-    if (!passwordCorrect) {
-      return res.status(401).json({ success: false, message: 'Invalid username or password' });
-    }
-
-    res.json({
-      success: true,
-      message: 'Login successful',
-      username: user.username,
-      // Later you can replace this fake token with real JWT
-      token: 'fake-jwt-' + Date.now()
-    });
+    const token = 'fake-jwt-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    return res.json({ success: true, message: 'Login successful.', username: user.username, token });
   } catch (err) {
     console.error('LOGIN ERROR:', err);
-    res.status(500).json({ success: false, message: 'Server error' });
+    return res.status(500).json({ success: false, message: 'Server error. Please try again.' });
   }
 });
 
-// Simple status check
-app.get('/', (req, res) => {
-  res.json({ message: 'Energy Monitor Backend is running' });
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime() });
 });
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-  console.log(`Users are saved in: ${USERS_FILE}`);
+app.get('/', (_req, res) => {
+  res.json({ message: 'WattWise backend is running.' });
+});
+
+app.use((err, _req, res, _next) => {
+  console.error('Unhandled error:', err.message);
+  res.status(500).json({ success: false, message: 'Internal server error.' });
+});
+
+app.listen(PORT, () => {
+  console.log('Server running on http://localhost:' + PORT);
+  console.log('Users file: ' + USERS_FILE);
 });
