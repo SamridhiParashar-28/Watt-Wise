@@ -18,5 +18,10 @@
     "username": "pikachu",
     "password": "$2b$12$jtZ1Xf25Q3VdcE2FoZD4te3QmryoO8gyjsPSou8W9FlDRvrQdmeSu",
     "createdAt": "2026-03-19T21:44:24.930Z"
+  },
+  {
+    "username": "ymittal",
+    "password": "$2b$12$mvkonTom0stVnrz5yFauleJY8gB2NG6nLlLVhmzHab2hFj2pw/IYS",
+    "createdAt": "2026-03-19T23:08:55.348Z"
   }
 ]
