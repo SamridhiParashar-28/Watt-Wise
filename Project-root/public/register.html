@@ -4,7 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register – WattWise</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" />
+
+  <!-- Font Awesome for eye icon -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Your global matrix-style stylesheet -->
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -16,6 +20,7 @@
     </div>
 
     <form class="form-body" id="registerForm">
+      <!-- Username -->
       <div class="input-group">
         <label for="username">USERNAME</label>
         <input 
@@ -29,6 +34,7 @@
         >
       </div>
 
+      <!-- Password -->
       <div class="input-group">
         <label for="password">PASSWORD</label>
         <input 
@@ -42,6 +48,7 @@
         <i class="fa-solid fa-eye password-toggle" id="togglePassword"></i>
       </div>
 
+      <!-- Confirm Password -->
       <div class="input-group">
         <label for="confirmPassword">CONFIRM PASSWORD</label>
         <input 
@@ -53,8 +60,10 @@
         >
       </div>
 
-      <div id="message" style="display:none; text-align:center; margin:16px 0; font-weight:bold;"></div>
+      <!-- Message area (success / error) -->
+      <div id="message" style="display:none; text-align:center; margin:16px 0; font-weight:bold; font-size:1.1rem;"></div>
 
+      <!-- Submit button -->
       <button type="submit" id="submitBtn">REGISTER</button>
     </form>
 
@@ -63,6 +72,7 @@
     </div>
   </div>
 
+  <!-- Your registration script -->
   <script src="js/register.js"></script>
 </body>
 </html>
