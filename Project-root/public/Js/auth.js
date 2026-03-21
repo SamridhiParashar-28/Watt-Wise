@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearMessage();
 
     const username = document.getElementById("username")?.value?.trim();
-    const password = passInput?.value?.trim();
+    const password = passInput?.value??"";
 
     if (!username || !password) {
       return showError("Please enter your username and password.");

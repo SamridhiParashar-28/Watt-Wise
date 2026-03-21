@@ -141,7 +141,7 @@
           <div class="refresh-item"><span>Last Run</span><strong id="lastRun">—</strong></div>
           <div class="refresh-item"><span>Status</span><strong style="color:var(--accent)">Ready</strong></div>
         </div>
-        <button class="btn btn-full" onclick="runForecast()"><i class="fas fa-rotate"></i> Run Forecast Now</button>
+        <button class="btn btn-full" id="ForecastBtn" onclick="runForecast()"><i class="fas fa-rotate"></i> Run Forecast Now</button>
       </div>
       <div class="card anomaly-card">
         <div class="card-label" style="color:var(--danger)"><i class="fas fa-triangle-exclamation"></i> Anomaly Detection</div>
@@ -246,7 +246,7 @@ function buildDashBilling() {
 }
 
 function runForecast() {
-  const btn = document.querySelector('.btn-full');
+  const btn = document.getElementById('forecastBtn');
   btn.textContent = 'Running...'; btn.disabled = true;
   setTimeout(() => {
     document.getElementById('lastRun').textContent = new Date().toLocaleTimeString('en-IN',{timeStyle:'short'});
