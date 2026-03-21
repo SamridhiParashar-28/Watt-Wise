@@ -125,6 +125,14 @@ document.addEventListener('DOMContentLoaded', () => {
   // Anomaly
   const topApp = B.appliances[0];
   const pct = Math.round(topApp[1]/B.total*100);
+  
+  // Room tags
+  const roomTagsEl = document.getElementById('roomTags');
+  if (roomTagsEl && B.rooms) {
+    roomTagsEl.innerHTML = B.rooms.map(r =>
+      `<span class="room-tag">${r}</span>`
+    ).join('');
+  }
   document.getElementById('anomalyNotes').innerHTML =
     `<div class="anomaly-item"><i class="fas fa-circle-exclamation"></i><span>${topApp[0]} = ${pct}% of total usage</span></div>` +
     (pct > 50 ? `<div class="anomaly-item"><i class="fas fa-triangle-exclamation"></i><span>Single appliance dominates — review usage policy</span></div>` : '');
