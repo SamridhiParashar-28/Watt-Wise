@@ -2,7 +2,8 @@
 
 **WattWise** is a modern full-stack energy monitoring and forecasting platform specifically designed for university campuses. It provides real-time usage tracking, short-term predictions using hybrid machine learning models, anomaly detection, billing simulation, and an AI assistant — all in a sleek cyberpunk-themed interface.
 
-Now [**WattWise 2.0**](https://github.com/SamridhiParashar-28/Urja_Vridhi/tree/main) is live pls visit it................... [CLick](https://github.com/SamridhiParashar-28/Urja_Vridhi)
+Now [**WattWise 2.0**](https://github.com/SamridhiParashar-28/Urja_Vridhi) is live pls visit it  [Click](https://github.com/SamridhiParashar-28/Urja_Vridhi)
+
 Built as a FossHack project with clean, expert-level, production-ready code quality.
 
 ## 🎯 Key Features (MVP – First 5 Core Functions Completed)
